@@ -17,11 +17,12 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class BaseActor extends Actor {
+public class BaseActor extends Group {
 
 	// Animation
 	private Animation<TextureRegion> animation;
@@ -359,9 +360,43 @@ public class BaseActor extends Actor {
 				worldBounds.height - cam.viewportHeight / 2);
 		cam.update();
 	}
+	
+	// feature for wrapping around the screen
+	public void wrapAroundWorld() {
+		if(getX() + getWidth() < 0)
+			setX(worldBounds.width);
+		
+		if(getX() > worldBounds.width)
+			setX(-getWidth());
+		
+		if(getY() + getHeight() < 0)
+			setY(worldBounds.height);
+		
+		if(getY() > worldBounds.height)
+			setY(-getHeight());
+	}
+	
+	// This method is a way to determine if two actors are "close"
+	public boolean isWithingDistance(float distance,BaseActor other) {
+		Polygon poly1 = this.getBoundaryPolygon();
+		float scaleX = (this.getWidth() + 2 * distance) / this.getWidth();
+		float scaleY = (this.getHeight() + 2 * distance) / this.getHeight();
+		poly1.setScale(scaleX, scaleY);
+		
+		Polygon poly2 = other.getBoundaryPolygon();
+		
+		//initial test to improve performace
+		if (!poly1.getBoundingRectangle().overlaps(poly2.getBoundingRectangle()))
+			return false;
+		return Intersector.overlapConvexPolygons(poly1,poly2);
+	}
+	
+	// to give access to SceneActions class
+	public static Rectangle getWorldBounds() {
+		return worldBounds;
+	}
 
 	public void draw(Batch batch, float parentAlpha) {
-		super.draw(batch, parentAlpha);
 
 		// apply color tint effect
 		Color c = getColor();
@@ -371,6 +406,9 @@ public class BaseActor extends Actor {
 			batch.draw(animation.getKeyFrame(elapsedTime), getX(), getY(), getOriginX(), getOriginY(), getWidth(),
 					getHeight(), getScaleX(), getScaleY(), getRotation());
 		}
+		// we had to move it to down here so the actors attached to the group render after(and therefore,appear on top of) the image corresponding 
+		//to the group object itself
+		super.draw(batch, parentAlpha);
 
 	}
 

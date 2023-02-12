@@ -25,13 +25,13 @@ public class Turtle extends BaseActor{
 	public void act(float dt) {
 		super.act(dt);
 		
-		if( Gdx.input.isKeyPressed(Keys.LEFT))
+		if( Gdx.input.isKeyPressed(Keys.A))
 			accelerateAtAngle(180);
-		if( Gdx.input.isKeyPressed(Keys.RIGHT))
+		if( Gdx.input.isKeyPressed(Keys.D))
 			accelerateAtAngle(0);
-		if (Gdx.input.isKeyPressed(Keys.UP))
+		if (Gdx.input.isKeyPressed(Keys.W))
 			accelerateAtAngle(90);
-		if(Gdx.input.isKeyPressed(Keys.DOWN))
+		if(Gdx.input.isKeyPressed(Keys.S))
 			accelerateAtAngle(270);
 		
 		// Apply acceleration physics
@@ -48,6 +48,7 @@ public class Turtle extends BaseActor{
 		boundToWorld();
 		
 		alignCamera();
+		
 	}
 
 }
